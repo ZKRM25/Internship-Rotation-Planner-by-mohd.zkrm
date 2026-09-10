@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>Internship Planner</title>
+<style>
+:root{
+  --accent:#0f766e;
+  --accent2:#115e59;
+  --soft:#ecfdf5;
+  --bg:#f5f8f7;
+  --card:#fff;
+  --text:#17211d;
+  --muted:#718078;
+  --line:#dce7e2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+}
+.app{
+  width:100%;height:100dvh;max-width:600px;margin:auto;
+  display:flex;flex-direction:column;
+  padding:10px 10px 8px;
+}
+.top{
+  flex:none;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  color:white;border-radius:18px;padding:12px 14px;
+  box-shadow:0 4px 14px #115e5925;
+}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-size:20px;line-height:1.1;margin:0;font-weight:800}
+.badge{font-size:10px;font-weight:800;padding:5px 7px;border-radius:8px;background:#ffffff20}
+.controls{
+  flex:none;display:grid;grid-template-columns:1fr 1.35fr;gap:8px;
+  margin:8px 0;
+}
+.control{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:7px 10px;
+}
+.control label{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-bottom:3px}
+input[type=date]{
+  width:100%;height:27px;border:0;outline:0;padding:0;
+  background:transparent;color:var(--text);font-size:15px;font-weight:700;
+}
+.overall{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-size:11px;
+}
+.overall b{color:var(--accent);font-size:12px}
+.list{
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;gap:5px;
+}
+.card{
+  min-height:0;flex:1;
+  display:flex;align-items:center;gap:7px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:5px 6px 5px 7px;
+  box-shadow:0 1px 5px #00000005;
+}
+.num{
+  width:27px;height:27px;flex:none;border-radius:8px;
+  display:grid;place-items:center;background:var(--soft);
+  color:var(--accent);font-size:12px;font-weight:900;
+}
+.info{min-width:0;flex:1}
+.subject{
+  font-size:12px;font-weight:800;line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dates{
+  margin-top:2px;font-size:10px;color:var(--muted);
+  white-space:nowrap;
+}
+.days{
+  flex:none;font-size:9px;font-weight:800;color:var(--accent);
+  background:var(--soft);border-radius:6px;padding:4px 5px;
+}
+.move{display:flex;gap:3px;flex:none}
+.btn{
+  width:29px;height:29px;border:1px solid var(--line);border-radius:8px;
+  background:#f8fbfa;color:var(--accent);font-size:15px;font-weight:900;
+  padding:0;line-height:1;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(.91);background:var(--soft)}
+.btn:disabled{opacity:.22}
+.bottom{
+  flex:none;text-align:center;font-size:9px;color:#8a9992;padding-top:5px;
+}
+@media(max-height:600px){
+  .app{padding:6px 8px 5px}
+  .top{padding:9px 12px;border-radius:14px}
+  h1{font-size:18px}
+  .controls{margin:5px 0;gap:5px}
+  .control{padding:5px 8px}
+  .card{padding:3px 5px 3px 6px;gap:5px}
+  .num,.btn{width:26px;height:26px}
+  .subject{font-size:11px}
+  .dates{font-size:9px}
+  .days{font-size:8px;padding:3px 4px}
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#101715;--card:#18211e;--text:#e8f0ec;--muted:#9aaba3;--line:#30403a;--soft:#14352d}
+  input[type=date]{color:var(--text)}
+  .btn{background:#1d2925;color:#7dd3c7}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="title-row">
+      <h1>Internship Rotation Planner by @mohd.zkrm</h1>
+      <div class="badge">6 ROTATIONS</div>
+    </div>
+  </header>
+
+  <section class="controls">
+    <div class="control">
+      <label>START DATE</label>
+      <input id="startDate" type="date" value="2026-07-29">
+    </div>
+    <div class="control overall">
+      <span>INTERNSHIP PERIOD</span>
+      <b id="period">—</b>
+    </div>
+  </section>
+
+  <main id="list" class="list"></main>
+  <div class="bottom">Use ↑ ↓ to arrange subjects • Dates update automatically</div>
+</div>
+
+<script>
+const defaultRotations=[
+  {name:"KAYACHIKITSA",days:61},
+  {name:"SHALYA TANTRA",days:31},
+  {name:"STRIROG & PRASUTI",days:31},
+  {name:"SHALAKYA TANTRA",days:31},
+  {name:"PANCHKARMA",days:15},
+  {name:"BALROGA",days:15}
+];
+
+let rotations=JSON.parse(localStorage.getItem("internshipRotations")||"null")
+  || defaultRotations.map(x=>({...x}));
+
+const startInput=document.getElementById("startDate");
+const list=document.getElementById("list");
+const period=document.getElementById("period");
+
+function parseDate(v){
+  const [y,m,d]=v.split("-").map(Number);
+  return new Date(y,m-1,d);
+}
+function addDays(date,n){
+  const x=new Date(date);
+  x.setDate(x.getDate()+n);
+  return x;
+}
+function fmt(date){
+  return date.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"2-digit"});
+}
+function save(){
+  localStorage.setItem("internshipRotations",JSON.stringify(rotations));
+}
+function move(from,to){
+  if(to<0||to>=rotations.length)return;
+  const item=rotations.splice(from,1)[0];
+  rotations.splice(to,0,item);
+  save();
+  render();
+}
+function render(){
+  list.innerHTML="";
+  if(!startInput.value)return;
+
+  const start=parseDate(startInput.value);
+  let cursor=new Date(start);
+  let total=0;
+
+  rotations.forEach((r,i)=>{
+    const s=new Date(cursor);
+    const e=addDays(s,r.days-1);
+    total+=r.days;
+
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <div class="num">${i+1}</div>
+      <div class="info">
+        <div class="subject">${r.name}</div>
+        <div class="dates">${fmt(s)} — ${fmt(e)}</div>
+      </div>
+      <div class="days">${r.days}D</div>
+      <div class="move">
+        <button class="btn up" aria-label="Move ${r.name} up">↑</button>
+        <button class="btn down" aria-label="Move ${r.name} down">↓</button>
+      </div>`;
+
+    card.querySelector(".up").disabled=i===0;
+    card.querySelector(".down").disabled=i===rotations.length-1;
+    card.querySelector(".up").onclick=()=>move(i,i-1);
+    card.querySelector(".down").onclick=()=>move(i,i+1);
+
+    list.appendChild(card);
+    cursor=addDays(e,1);
+  });
+
+  const end=addDays(start,total-1);
+  period.textContent=`${fmt(start)} → ${fmt(end)}`;
+}
+startInput.addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
